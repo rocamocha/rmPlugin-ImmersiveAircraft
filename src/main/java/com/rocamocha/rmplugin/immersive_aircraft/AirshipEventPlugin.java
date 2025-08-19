@@ -1,7 +1,7 @@
 package com.rocamocha.rmplugin.immersive_aircraft;
 
 import circuitlord.reactivemusic.SongpackEventType;
-import circuitlord.reactivemusic.api.SongpackEventPlugin;
+import circuitlord.reactivemusic.api.*;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -17,22 +17,22 @@ public class AirshipEventPlugin implements SongpackEventPlugin {
 
     private static SongpackEventType AIRSHIP; 
 
-    public void register() {
+    @Override public void init() {
         AIRSHIP = SongpackEventType.register("AIRSHIP");
     }
 
-    @Override
-    public void tick(PlayerEntity player, World world, Map<SongpackEventType, Boolean> map) {
+    @Override public void gameTick(PlayerEntity player, World world, Map<SongpackEventType, Boolean> eventMap) {
         // Keep this safe even if IA isn't installed
         boolean active = IA_LOADED && player != null && isInImmersiveAircraftAirship(player);
-        map.put(AIRSHIP, active);
+        if (player == null || world == null) return;
+        eventMap.put(AIRSHIP, active);
 
         Entity v = player.getRootVehicle();
         if (v != null && v != player) {
             Identifier id = Registries.ENTITY_TYPE.getId(v.getType());
             if (id != null) {
                 // Replace with your logger if you have one; this is fine for quick checks
-                System.out.println("[RM-IA] Root vehicle: " + id);
+                System.out.println("[RM:SpEP-IA] Root vehicle: " + id);
             }
         }
     }
@@ -52,5 +52,10 @@ public class AirshipEventPlugin implements SongpackEventPlugin {
         // be flexible on the path; tighten when you know exact IDs
         String path = typeId.getPath().toLowerCase(java.util.Locale.ROOT);
         return path.contains("airship"); // e.g., "airship", "cargo_airship", etc.
+    }
+
+    @Override
+    public String getId() {
+        return "Immersive Aircraft";
     }
 }
