@@ -1,11 +1,11 @@
-package com.rocamocha.rmplugin.immersive_aircraft;
+package com.rocamocha.mochamix;
 
 import net.fabricmc.api.ModInitializer;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class RmPluginImmersiveAircraft implements ModInitializer {
+public class MochaMix implements ModInitializer {
 	public static final String MOD_ID = "rmplugin-immersive-aircraft";
 
 	// This logger is used to write text to the console and the log file.

@@ -1,7 +1,8 @@
-package com.rocamocha.rmplugin.immersive_aircraft;
+package com.rocamocha.mochamix.plugins;
 
-import circuitlord.reactivemusic.SongpackEventType;
 import circuitlord.reactivemusic.api.*;
+import circuitlord.reactivemusic.api.eventsys.EventRecord;
+import circuitlord.reactivemusic.api.songpack.SongpackEvent;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -11,19 +12,24 @@ import net.minecraft.world.World;
 
 import java.util.Map;
 
-public class AirshipEventPlugin implements SongpackEventPlugin {
+public class ImmersiveAircraftPlugin extends ReactiveMusicPlugin {
+    public ImmersiveAircraftPlugin() {
+        super("mochamix", "immersive_aircraft");
+    }
 
     private static final boolean IA_LOADED = FabricLoader.getInstance().isModLoaded("immersive_aircraft");
 
-    private static SongpackEventType AIRSHIP; 
+    private static EventRecord AIRSHIP; 
 
     @Override public void init() {
-        AIRSHIP = SongpackEventType.register("AIRSHIP");
+        registerSongpackEvents("AIRSHIP");
+
+        AIRSHIP = SongpackEvent.get("AIRSHIP");
     }
 
-    @Override public void gameTick(PlayerEntity player, World world, Map<SongpackEventType, Boolean> eventMap) {
+    @Override public void gameTick(PlayerEntity player, World world, Map<EventRecord, Boolean> eventMap) {
         // Keep this safe even if IA isn't installed
-        boolean active = IA_LOADED && player != null && isInImmersiveAircraftAirship(player);
+        boolean active = IA_LOADED && player != null && inAirship(player);
         if (player == null || world == null) return;
         eventMap.put(AIRSHIP, active);
 
@@ -38,7 +44,7 @@ public class AirshipEventPlugin implements SongpackEventPlugin {
     }
 
     /** Detect IA airship by entity type registry id: immersive_aircraft:<something_with_airship> */
-    private static boolean isInImmersiveAircraftAirship(PlayerEntity player) {
+    private static boolean inAirship(PlayerEntity player) {
         // climb to the root vehicle (the actual aircraft)
         Entity vehicle = player.getRootVehicle();
         if (vehicle == null || vehicle == player) return false;
@@ -52,10 +58,5 @@ public class AirshipEventPlugin implements SongpackEventPlugin {
         // be flexible on the path; tighten when you know exact IDs
         String path = typeId.getPath().toLowerCase(java.util.Locale.ROOT);
         return path.contains("airship"); // e.g., "airship", "cargo_airship", etc.
-    }
-
-    @Override
-    public String getId() {
-        return "Immersive Aircraft";
     }
 }
